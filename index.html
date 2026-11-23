@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Registre des artistes</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=EB+Garamond:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+--bg1:#0b0720;--bg2:#1a0f3d;--card:rgba(32,22,74,.72);--line:rgba(160,140,255,.28);--txt:#e9e4ff;--mut:#a79fd6;--gold:#e8d49a;--vio:#8b5cf6;--blue:#4f8cff;--ok:#6ee7b7;--bad:#fb7185}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#0b0720;--bg2:#1a0f3d}}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--txt);background:var(--bg1);background-image:radial-gradient(ellipse at 20% 0%,#3a1d8a55,transparent 55%),radial-gradient(ellipse at 90% 30%,#1d4ed855,transparent 55%),linear-gradient(180deg,var(--bg1),var(--bg2));background-attachment:fixed;font-family:"Cormorant Garamond",Georgia,"Times New Roman",serif;font-size:18px}
+.wrap{max-width:860px;margin:0 auto;padding:28px 16px 60px}
+h1{font-family:Cinzel,Georgia,serif;text-align:center;font-size:clamp(26px,6vw,42px);margin:8px 0 4px;letter-spacing:.08em;background:linear-gradient(90deg,#c4b5fd,#93c5fd,#e8d49a);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{text-align:center;color:var(--mut);font-style:italic;margin:0 0 22px}
+.orn{text-align:center;color:var(--gold);letter-spacing:.6em;margin-bottom:6px}
+.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:18px;backdrop-filter:blur(6px);box-shadow:0 0 30px #6d28d933}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input,textarea,button{font:inherit;color:var(--txt)}
+input,textarea{background:#0e0a2899;border:1px solid var(--line);border-radius:8px;padding:9px 11px;min-width:0}
+input:focus,textarea:focus{outline:2px solid var(--blue);outline-offset:1px}
+input.grow{flex:1 1 180px}
+button{cursor:pointer;border:1px solid var(--line);background:linear-gradient(135deg,#5b34c8,#2f5fd8);border-radius:8px;padding:9px 16px;font-family:Cinzel,Georgia,serif;font-size:14px;letter-spacing:.04em}
+button:hover{filter:brightness(1.15)}
+button.ghost{background:transparent}
+button.add{background:linear-gradient(135deg,#0f766e,#2563eb)}
+button.sub-btn{background:linear-gradient(135deg,#9f1239,#6d28d9)}
+.stats{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:16px}
+.chip{border:1px solid var(--line);border-radius:999px;padding:3px 12px;font-size:15px;color:var(--mut);background:#0e0a2877}
+.person{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
+.top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.name{font-family:Cinzel,Georgia,serif;font-size:22px;margin:0}
+.field{color:var(--mut);font-style:italic}
+.badge{font-family:Cinzel,Georgia,serif;text-align:right}
+.badge b{display:inline-block;min-width:38px;text-align:center;border:1px solid var(--gold);color:var(--gold);border-radius:8px;padding:2px 8px;margin-right:8px}
+.pts{color:var(--mut);margin-top:2px;text-align:right}
+.bar{height:10px;border-radius:99px;background:#0e0a28;border:1px solid var(--line);margin:12px 0 4px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--vio),var(--blue));box-shadow:0 0 12px var(--blue)}
+.next{font-size:15px;color:var(--mut)}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.acts button{padding:6px 12px;font-size:13px}
+.manage{margin-top:12px;border-top:1px dashed var(--line);padding-top:12px}
+.manage textarea{width:100%;min-height:60px;margin:8px 0;resize:vertical}
+.hist{margin:12px 0 0;padding:0;list-style:none}
+.hist li{border-left:2px solid var(--vio);padding:4px 0 4px 12px;margin-bottom:8px;font-size:16px}
+.hist .d{font-size:13px;color:var(--mut)}
+.pos{color:var(--ok)}.neg{color:var(--bad)}.up{color:var(--gold)}
+.empty{text-align:center;color:var(--mut);font-style:italic;padding:30px}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;font-size:15px;color:var(--mut)}
+.legend span b{color:var(--gold);font-family:Cinzel,Georgia,serif}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;background:#1e1250;border:1px solid var(--gold);color:var(--gold);padding:10px 18px;border-radius:10px;transition:.3s;text-align:center;max-width:90vw;z-index:20}
+#toast.show{opacity:1;transform:translateX(-50%)}
+.foot{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:24px}
+body{font-family:"EB Garamond",Georgia,"Times New Roman",serif}
+h1,.name,.badge,button,.legend span b{font-family:"Cinzel Decorative",Cinzel,Georgia,serif}
+button{font-size:12px}
+h1{font-weight:700}
+[hidden]{display:none!important}
+.wrap{position:relative;z-index:1}
+#bg{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+select{font:inherit;color:var(--txt);background:#0e0a2899;border:1px solid var(--line);border-radius:8px;padding:9px 11px}
+select option{background:#1a0f3d}
+.tabs{display:flex;gap:8px;justify-content:center;margin-bottom:18px;flex-wrap:wrap}
+.tab{background:transparent}
+.tab.on{background:linear-gradient(135deg,#5b34c8,#2f5fd8);border-color:var(--gold);color:var(--gold)}
+.art{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px;border-left:3px solid var(--gold)}
+.art h2{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;font-size:20px;margin:0 0 4px}
+.meta{color:var(--mut);font-style:italic;font-size:16px}
+.tag{display:inline-block;border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:1px 10px;font-size:14px;margin-right:8px;font-style:normal}
+.art p{margin:8px 0 0;white-space:pre-wrap}
+.legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(135px,1fr));gap:12px;font-size:inherit;color:inherit}
+.rank{position:relative;text-align:center;padding:16px 8px 14px;border-radius:14px;border:1px solid var(--c);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 24%,transparent),rgba(14,10,40,.75));box-shadow:0 0 calc(5px*var(--l)) var(--c),inset 0 0 18px rgba(255,255,255,.04);overflow:hidden;transition:transform .25s}
+.rank:hover{transform:translateY(-4px)}
+.rank .sg{font-size:26px;color:var(--c);text-shadow:0 0 14px var(--c);animation:fl 3s ease-in-out infinite}
+.rank .rn{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;font-size:32px;font-weight:700;color:var(--c);line-height:1.1;text-shadow:0 0 10px var(--c)}
+.rank .rt{font-size:17px;font-weight:600;margin-top:4px;min-height:42px;color:var(--txt)}
+.rank .rp{font-size:14px;color:var(--mut);border-top:1px solid var(--line);margin-top:8px;padding-top:6px}
+.rank.max::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 30%,rgba(255,240,180,.3) 50%,transparent 70%);transform:translateX(-100%);animation:sh 3.5s ease-in-out infinite;pointer-events:none}
+@keyframes fl{50%{transform:translateY(-3px) scale(1.12)}}
+@keyframes sh{to{transform:translateX(100%)}}
+.person{border-left:3px solid var(--c,var(--line))}
+.badge b{border-color:var(--c,var(--gold));color:var(--c,var(--gold));box-shadow:0 0 10px var(--c,transparent);text-shadow:0 0 8px var(--c,transparent)}
+@media (prefers-reduced-motion:reduce){.rank .sg,.rank.max::after{animation:none}}
+.snd{position:fixed;top:calc(10px + env(safe-area-inset-top,0px));right:10px;z-index:15;display:flex;gap:6px}
+.snd button{padding:6px 10px;font-size:16px;background:#1e1250cc}
+.rank{cursor:pointer}
+.rank:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.hint{text-align:center;color:var(--mut);font-style:italic;font-size:15px;margin-top:12px}
+#gm{position:fixed;inset:0;z-index:30;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,3,22,.74);backdrop-filter:blur(5px)}
+.gm-box{position:relative;width:100%;max-width:520px;max-height:90vh;overflow:auto;text-align:center;padding:28px 22px 20px;border-radius:18px;border:1px solid var(--c);background:linear-gradient(180deg,color-mix(in srgb,var(--c) 22%,#150c3a),#0d0828);box-shadow:0 0 40px var(--c),inset 0 0 30px rgba(255,255,255,.04);animation:pop .3s ease}
+@keyframes pop{from{opacity:0;transform:scale(.92) translateY(10px)}}
+.gm-x{position:absolute;top:10px;right:10px;padding:4px 10px;background:transparent;font-size:14px}
+.gm-sg{font-size:42px;line-height:1;color:var(--c);text-shadow:0 0 18px var(--c)}
+.gm-rn{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;color:var(--c);letter-spacing:.18em;font-size:15px;margin-top:6px}
+.gm-box h2{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;margin:6px 0 4px;font-size:24px}
+.gm-pts,.gm-n{color:var(--mut);font-size:16px}
+.gm-box ul{list-style:none;padding:0;margin:16px 0;text-align:left}
+.gm-box li{position:relative;padding:10px 8px 10px 34px;border-top:1px solid var(--line)}
+.gm-box li::before{content:"✦";position:absolute;left:10px;color:var(--c)}
+.gm-nav{display:flex;justify-content:space-between;gap:8px}
+.gm-nav button:disabled{opacity:.3;cursor:default;filter:none}
+@media (prefers-reduced-motion:reduce){.gm-box{animation:none}}
+.cer h2{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;text-align:center;font-size:clamp(22px,5vw,30px);margin:4px 0 12px;color:var(--gold);text-shadow:0 0 16px rgba(232,212,154,.4)}
+.cer h3,.mem-h{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;font-size:16px;letter-spacing:.06em;margin:18px 0 10px;color:#c4b5fd}
+.cer p{line-height:1.55;margin:0 0 10px}
+.prer{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;margin:8px 0 16px}
+.pr{border:1px solid var(--gold);border-radius:12px;padding:14px;background:linear-gradient(180deg,rgba(232,212,154,.1),rgba(14,10,40,.6));display:flex;flex-direction:column;gap:6px}
+.pr .sg{font-size:26px;color:var(--gold);text-shadow:0 0 12px var(--gold)}
+.pr b{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;font-size:15px;color:var(--gold)}
+.pr span{font-size:16px;color:var(--txt);line-height:1.45}
+.mem{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border:1px solid var(--c);border-left-width:4px;border-radius:12px;padding:12px 14px;margin-bottom:10px;background:linear-gradient(90deg,color-mix(in srgb,var(--c) 16%,transparent),rgba(14,10,40,.6))}
+.mem .nm{font-family:"Cinzel Decorative",Cinzel,Georgia,serif;font-size:18px}
+.mem .rk{color:var(--c);text-shadow:0 0 8px var(--c);text-align:right;font-family:"Cinzel Decorative",Cinzel,Georgia,serif;font-size:14px}
+body.ro .adm,body.ro [data-a="m"],body.ro [data-a="del"],body.ro [data-del]{display:none!important}
+body:not(.ro) .ronote{display:none}
+#lg{position:fixed;inset:0;z-index:40;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(6,3,22,.74);backdrop-filter:blur(5px)}
+#lg input{width:100%;margin:14px 0 6px}
+#lg .msg{min-height:22px;color:var(--bad);font-size:16px;margin-bottom:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="snd"><button id="sMute" class="ghost" title="Couper ou rétablir le son" aria-label="Son">🔊</button><button id="sAmb" class="ghost" title="Ambiance sonore" aria-label="Ambiance sonore">♫</button></div>
+  <div class="orn">✦ ✧ ✦</div>
+  <h1>Registre des artistes</h1>
+  <p class="sub">Archive magique des talents reconnus de Rivenguard</p>
+  <div class="tabs"><button class="tab on" data-t="reg">Registre</button><button class="tab" data-t="art">Art recensé</button><button class="tab" data-t="cer">Cercle des Artistes</button></div>
+  <div id="tab-reg">
+
+  <div class="panel">
+    <div class="legend" id="legend"></div>
+    <div class="hint">Cliquez sur un grade pour découvrir ses avantages.</div>
+  </div>
+
+  <div class="panel">
+    <div class="row">
+      <input class="grow" id="newName" placeholder="Nom de l’artiste" maxlength="60">
+      <input class="grow" id="newField" placeholder="Discipline (facultatif)" maxlength="60">
+      <button id="addPerson">Inscrire au registre</button>
+    </div>
+  </div>
+
+  <div class="stats" id="stats"></div>
+  <div class="row" style="margin-bottom:14px"><input class="grow" id="search" placeholder="Rechercher dans l’archive…"></div>
+  <div id="list"></div>
+
+  </div>
+  <div id="tab-art" hidden>
+    <div class="panel">
+      <div class="row">
+        <input class="grow" id="aTitle" placeholder="Titre de l’œuvre" maxlength="100">
+        <input class="grow" id="aArtist" list="aNames" placeholder="Artiste" maxlength="60"><datalist id="aNames"></datalist>
+        <select id="aType" aria-label="Type d’art"></select>
+        <input type="date" id="aDate" aria-label="Date de présentation">
+      </div>
+      <textarea id="aDesc" placeholder="Description, lieu de présentation, notes…" style="width:100%;margin:10px 0;min-height:70px;resize:vertical"></textarea>
+      <button id="aAdd">Recenser l’œuvre</button>
+    </div>
+    <div class="stats" id="aStats"></div>
+    <div class="row" style="margin-bottom:14px"><input class="grow" id="aSearch" placeholder="Rechercher une œuvre ou un artiste…"><select id="aFilter" aria-label="Filtrer"></select></div>
+    <div id="aListOut"></div>
+  </div>
+  <div id="tab-cer" hidden>
+    <div class="panel cer">
+      <h2>Le Cercle des Artistes</h2>
+      <p>Le Cercle des Artistes est une institution réunissant les artistes les plus accomplis de Rivenguard. Accessible à partir du rang Maître artiste, il a pour vocation de valoriser l’excellence artistique, d’assurer la transmission des savoir-faire et de contribuer à l’encadrement de la création au sein du royaume.</p>
+      <h3>Prérogatives des membres</h3>
+      <div class="prer">
+        <div class="pr"><div class="sg">⚜</div><b>Évaluation artistique</b><span>Participer à l’évaluation et au jugement des œuvres présentées par les artistes de rang inférieur à Maître artiste.</span></div>
+        <div class="pr"><div class="sg">❖</div><b>Mentorat</b><span>Prendre sous leur aile des artistes de rang inférieur afin de les accompagner dans leur progression, de transmettre leur savoir-faire et de les conseiller.</span></div>
+        <div class="pr"><div class="sg">☉</div><b>Supervision des travaux</b><span>Disposer d’un droit de regard sur les travaux artistiques et les commandes passées aux artistes, afin de veiller à leur qualité et à leur cohérence.</span></div>
+      </div>
+      <p>Le Cercle constitue ainsi une instance de référence pour la communauté artistique de Rivenguard. Il ne se limite pas à distinguer les artistes les plus talentueux : il leur confie également une responsabilité dans le développement et la pérennisation du patrimoine artistique du royaume.</p>
+    </div>
+    <div class="panel">
+      <h3 class="mem-h" style="margin-top:0">Membres du Cercle</h3>
+      <div id="cerList"></div>
+    </div>
+  </div>
+  <div class="foot">
+    <button class="ghost" id="exp">Exporter l’archive</button>
+    <button class="ghost" id="imp">Importer</button>
+    <input type="file" id="file" accept=".json" hidden>
+  </div>
+</div>
+<div id="gm" hidden role="dialog" aria-modal="true" aria-labelledby="gmT"></div>
+<canvas id="bg" aria-hidden="true"></canvas>
+<div id="toast"></div>
+
+<script>
+var GRADES=[
+ {n:'I',t:'Apprenti artiste'},{n:'II',t:'Artiste reconnu'},{n:'III',t:'Artiste confirmé'},
+ {n:'IV',t:'Maître artiste'},{n:'V',t:'Grand maître des Arts'}];
+var STEP=50, COL=['#93a8ff','#5eb0ff','#a78bfa','#d77bff','#f5d78a'], SIG=['✧','✦','❖','✺','♛'], KEY='registre-artistes-v1';
+var people=[], openM={}, openH={}, q='';
+
+function load(){}
+function save(){pushData();}
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
+function gi(p){return Math.min(GRADES.length-1,Math.floor(p/STEP));}
+function fmt(t){return new Date(t).toLocaleString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'});}
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.className='show';clearTimeout(toast.h);toast.h=setTimeout(function(){t.className='';},3500);}
+
+function render(){
+  document.getElementById('legend').innerHTML=GRADES.map(function(g,i){
+    return '<div class="rank'+(i==4?' max':'')+'" role="button" tabindex="0" data-i="'+i+'" style="--c:'+COL[i]+';--l:'+(i+1)+'"><div class="sg">'+SIG[i]+'</div><div class="rn">'+g.n+'</div><div class="rt">'+g.t+'</div><div class="rp">'+(i*STEP)+(i==4?' pts et +':' – '+((i+1)*STEP-1)+' pts')+'</div></div>';}).join('');
+  var counts=GRADES.map(function(){return 0;});
+  people.forEach(function(p){counts[gi(p.points)]++;});
+  document.getElementById('stats').innerHTML='<span class="chip">'+people.length+' inscrit'+(people.length>1?'s':'')+'</span>'+
+    counts.map(function(c,i){return c?'<span class="chip">'+GRADES[i].n+' : '+c+'</span>':'';}).join('');
+  var list=people.filter(function(p){return (p.name+' '+(p.field||'')).toLowerCase().indexOf(q)>-1;})
+    .sort(function(a,b){return b.points-a.points||a.name.localeCompare(b.name);});
+  var el=document.getElementById('list');
+  if(!list.length){el.innerHTML='<div class="empty">'+(people.length?'Aucun nom ne correspond à cette recherche.':'Le registre est vide. Inscrivez un premier artiste.')+'</div>';return;}
+  el.innerHTML=list.map(function(p){
+    var i=gi(p.points),g=GRADES[i],max=i==GRADES.length-1;
+    var pct=max?100:((p.points%STEP)/STEP*100);
+    var nx=max?'Grade suprême atteint ✦':((i+1)*STEP-p.points)+' pt'+(((i+1)*STEP-p.points)>1?'s':'')+' avant le grade '+GRADES[i+1].n+' — '+GRADES[i+1].t;
+    var h='<div class="person" style="--c:'+COL[i]+'"><div class="top"><div><h2 class="name">'+esc(p.name)+'</h2><div class="field">'+esc(p.field||'Discipline non précisée')+'</div></div>'+
+      '<div><div class="badge"><b>'+g.n+'</b>'+g.t+'</div><div class="pts">'+p.points+' points</div></div></div>'+
+      '<div class="bar"><i style="width:'+pct+'%"></i></div><div class="next">'+nx+'</div>'+
+      '<div class="acts"><button data-a="m" data-id="'+p.id+'">'+(openM[p.id]?'Fermer':'Modifier les points')+'</button>'+
+      '<button class="ghost" data-a="h" data-id="'+p.id+'">'+(openH[p.id]?'Masquer l’historique':'Historique ('+p.history.length+')')+'</button>'+
+      '<button class="ghost" data-a="del" data-id="'+p.id+'">Radier</button></div>';
+    if(openM[p.id])h+='<div class="manage"><div class="row"><input type="number" min="1" value="10" id="amt-'+p.id+'" style="width:110px" aria-label="Points"></div>'+
+      '<textarea id="com-'+p.id+'" placeholder="Commentaire (obligatoire) : raison de l’attribution ou du retrait…"></textarea>'+
+      '<div class="row"><button class="add" data-a="add" data-id="'+p.id+'">＋ Ajouter</button><button class="sub-btn" data-a="rem" data-id="'+p.id+'">－ Retirer</button></div></div>';
+    if(openH[p.id])h+='<ul class="hist">'+(p.history.length?p.history.slice().reverse().map(function(e){
+      return '<li><div class="d">'+fmt(e.t)+'</div><b class="'+(e.d>=0?'pos':'neg')+'">'+(e.d>0?'+':'')+e.d+' pts</b> → '+e.after+' · '+esc(e.c)+(e.g?'<div class="up">✦ '+esc(e.g)+'</div>':'')+'</li>';}).join(''):'<li>Aucune entrée.</li>')+'</ul>';
+    return h+'</div>';}).join('');
+}
+
+function adjust(id,sign){
+  var p=people.find(function(x){return x.id===id;});if(!p)return;
+  var a=parseInt(document.getElementById('amt-'+id).value,10);
+  var c=document.getElementById('com-'+id).value.trim();
+  if(!a||a<1){toast('Indiquez un nombre de points valide.');return;}
+  if(!c){toast('Un commentaire est requis pour toute modification.');return;}
+  var before=p.points,old=gi(before);
+  p.points=Math.max(0,before+sign*a);
+  var d=p.points-before,ni=gi(p.points),note='';
+  if(ni>old)note='Passage au grade '+GRADES[ni].n+' — '+GRADES[ni].t;
+  if(ni<old)note='Rétrogradation au grade '+GRADES[ni].n+' — '+GRADES[ni].t;
+  p.history.push({t:Date.now(),d:d,c:c,after:p.points,g:note});
+  save();render();
+  (ni>old?SFX.up(ni):ni<old?SFX.down():d>=0?SFX.add():SFX.rem());toast(note?(ni>old?'✦ ':'')+p.name+' : '+note:p.name+' : '+(d>=0?'+':'')+d+' points');
+}
+
+document.getElementById('addPerson').onclick=function(){
+  var n=document.getElementById('newName'),f=document.getElementById('newField');
+  var name=n.value.trim();if(!name){toast('Le nom est requis.');return;}
+  if(people.some(function(p){return p.name.toLowerCase()===name.toLowerCase();})){toast('Cet artiste est déjà inscrit.');return;}
+  people.push({id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),name:name,field:f.value.trim(),points:0,history:[{t:Date.now(),d:0,c:'Inscription au registre',after:0,g:''}]});
+  n.value='';f.value='';save();render();SFX.reg();toast(name+' est inscrit au registre.');
+};
+document.getElementById('newName').onkeydown=function(e){if(e.key==='Enter')document.getElementById('addPerson').click();};
+document.getElementById('search').oninput=function(e){q=e.target.value.toLowerCase();render();};
+document.getElementById('list').onclick=function(e){
+  var b=e.target.closest('button');if(!b)return;var id=b.dataset.id,a=b.dataset.a;
+  if(a==='m'){openM[id]=!openM[id];render();}
+  else if(a==='h'){openH[id]=!openH[id];render();}
+  else if(a==='add')adjust(id,1);
+  else if(a==='rem')adjust(id,-1);
+  else if(a==='del'){var p=people.find(function(x){return x.id===id;});
+    if(p&&confirm('Radier '+p.name+' du registre ? Cette action est définitive.')){people=people.filter(function(x){return x.id!==id;});save();render();}}
+};
+document.getElementById('exp').onclick=function(){
+  var u=URL.createObjectURL(new Blob([JSON.stringify({artistes:people,oeuvres:arts},null,1)],{type:'application/json'}));
+  var a=document.createElement('a');a.href=u;a.download='registre-des-artistes.json';a.click();setTimeout(function(){URL.revokeObjectURL(u);},1000);
+};
+document.getElementById('imp').onclick=function(){document.getElementById('file').click();};
+document.getElementById('file').onchange=function(e){
+  var f=e.target.files[0];if(!f)return;var r=new FileReader();
+  r.onload=function(){try{var d=JSON.parse(r.result);if(d&&!Array.isArray(d)&&Array.isArray(d.oeuvres)){arts=d.oeuvres.filter(function(o){return o&&o.id&&o.title;});saveArts();renderArts();}if(d&&!Array.isArray(d))d=d.artistes;if(!Array.isArray(d))throw 0;
+    people=d.filter(function(p){return p&&p.id&&p.name;}).map(function(p){return {id:String(p.id),name:String(p.name),field:String(p.field||''),points:Math.max(0,parseInt(p.points,10)||0),history:Array.isArray(p.history)?p.history:[]};});
+    save();render();toast('Archive importée.');}catch(x){toast('Fichier invalide.');}};
+  r.readAsText(f);e.target.value='';
+};
+var TYPES=['Peinture','Sculpture','Musique','Poésie','Théâtre','Danse','Autre'],AKEY='registre-artistes-oeuvres-v1',arts=[],aq='',af='';
+
+function saveArts(){pushData();}
+document.getElementById('aType').innerHTML=TYPES.map(function(t){return '<option>'+t+'</option>';}).join('');
+document.getElementById('aFilter').innerHTML='<option value="">Tous les arts</option>'+TYPES.map(function(t){return '<option>'+t+'</option>';}).join('');
+document.getElementById('aDate').value=new Date().toISOString().slice(0,10);
+function renderArts(){
+  document.getElementById('aNames').innerHTML=people.map(function(p){return '<option value="'+esc(p.name)+'">';}).join('');
+  var cnt={};arts.forEach(function(o){cnt[o.type]=(cnt[o.type]||0)+1;});
+  document.getElementById('aStats').innerHTML='<span class="chip">'+arts.length+' œuvre'+(arts.length>1?'s':'')+' recensée'+(arts.length>1?'s':'')+'</span>'+Object.keys(cnt).map(function(k){return '<span class="chip">'+esc(k)+' : '+cnt[k]+'</span>';}).join('');
+  var l=arts.filter(function(o){return (!af||o.type===af)&&(o.title+' '+o.artist).toLowerCase().indexOf(aq)>-1;}).sort(function(a,b){return (b.date||'').localeCompare(a.date||'')||b.t-a.t;});
+  document.getElementById('aListOut').innerHTML=l.length?l.map(function(o){
+    var d=o.date?new Date(o.date+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'Date inconnue';
+    return '<div class="art"><h2>'+esc(o.title)+'</h2><div class="meta"><span class="tag">'+esc(o.type)+'</span>par '+esc(o.artist)+' · présentée le '+d+'</div>'+(o.desc?'<p>'+esc(o.desc)+'</p>':'')+'<div class="acts"><button class="ghost" data-del="'+o.id+'">Retirer de l’archive</button></div></div>';}).join(''):'<div class="empty">'+(arts.length?'Aucune œuvre ne correspond.':'Aucune œuvre recensée pour le moment.')+'</div>';
+}
+document.getElementById('aAdd').onclick=function(){
+  var t=document.getElementById('aTitle').value.trim(),a=document.getElementById('aArtist').value.trim();
+  if(!t||!a){toast('Le titre et l’artiste sont requis.');return;}
+  arts.push({id:'o'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),t:Date.now(),title:t,artist:a,type:document.getElementById('aType').value,date:document.getElementById('aDate').value,desc:document.getElementById('aDesc').value.trim()});
+  document.getElementById('aTitle').value='';document.getElementById('aDesc').value='';
+  saveArts();renderArts();SFX.reg();toast('Œuvre recensée dans l’archive.');
+};
+document.getElementById('aSearch').oninput=function(e){aq=e.target.value.toLowerCase();renderArts();};
+document.getElementById('aFilter').onchange=function(e){af=e.target.value;renderArts();};
+document.getElementById('aListOut').onclick=function(e){var b=e.target.closest('button[data-del]');if(!b)return;
+  var o=arts.find(function(x){return x.id===b.dataset.del;});
+  if(o&&confirm('Retirer « '+o.title+' » de l’archive ?')){arts=arts.filter(function(x){return x.id!==o.id;});saveArts();renderArts();}};
+document.querySelector('.tabs').onclick=function(e){var b=e.target.closest('.tab');if(!b)return;
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x===b);});
+  document.getElementById('tab-reg').hidden=b.dataset.t!=='reg';
+  document.getElementById('tab-art').hidden=b.dataset.t!=='art';
+  document.getElementById('tab-cer').hidden=b.dataset.t!=='cer';
+  SFX.click();if(b.dataset.t==='art')renderArts();if(b.dataset.t==='cer')renderCercle();};
+(function(){var c=document.getElementById('bg'),x=c.getContext('2d'),W,H,ps=[],mq=window.matchMedia('(prefers-reduced-motion: reduce)');
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;}rs();addEventListener('resize',rs);
+  for(var i=0;i<70;i++)ps.push({x:Math.random(),y:Math.random(),r:Math.random()*2+.6,v:Math.random()*.00005+.00002,p:Math.random()*6.28,h:Math.random()<.5?265:215});
+  function f(t){x.clearRect(0,0,W,H);
+    for(var k=0;k<3;k++){var cx=W*(.5+.4*Math.sin(t/9000+k*2.1)),cy=H*(.5+.4*Math.cos(t/11000+k*3)),R=Math.max(W,H)*.45,g=x.createRadialGradient(cx,cy,0,cx,cy,R),h=k==1?215:265;
+      g.addColorStop(0,'hsla('+h+',85%,58%,.2)');g.addColorStop(1,'hsla('+h+',85%,58%,0)');x.fillStyle=g;x.fillRect(0,0,W,H);}
+    ps.forEach(function(p){p.y-=p.v*16;if(p.y<-.02){p.y=1.02;p.x=Math.random();}
+      x.globalAlpha=.35+.45*Math.sin(t/700+p.p);x.fillStyle='hsl('+p.h+',90%,80%)';x.beginPath();x.arc(p.x*W,p.y*H,p.r,0,6.283);x.fill();});
+    x.globalAlpha=1;if(!mq.matches)requestAnimationFrame(f);}
+  f(0);})();
+var AC=null,muted=false,amb=false,ambN=null;
+try{muted=localStorage.getItem('reg-mute')==='1';amb=localStorage.getItem('reg-amb')==='1';}catch(e){}
+function sv(k,v){try{localStorage.setItem(k,v?'1':'0');}catch(e){}}
+function ctx(){if(!AC){var C=window.AudioContext||window.webkitAudioContext;if(!C)return null;AC=new C();}if(AC.state==='suspended')AC.resume();return AC;}
+function tone(f,t0,d,type,vol,f2){var a=ctx();if(!a||muted)return;var o=a.createOscillator(),g=a.createGain(),s=a.currentTime+t0;o.type=type||'sine';o.frequency.setValueAtTime(f,s);if(f2)o.frequency.exponentialRampToValueAtTime(f2,s+d);g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(vol||.12,s+.02);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(a.destination);o.start(s);o.stop(s+d+.05);}
+function noise(t0,d,vol,fr){var a=ctx();if(!a||muted)return;var n=Math.floor(a.sampleRate*d),b=a.createBuffer(1,n,a.sampleRate),x=b.getChannelData(0);for(var i=0;i<n;i++)x[i]=Math.random()*2-1;var s=a.createBufferSource();s.buffer=b;var f=a.createBiquadFilter();f.type='bandpass';f.frequency.value=fr||3500;var g=a.createGain(),st=a.currentTime+t0;g.gain.setValueAtTime(vol,st);g.gain.exponentialRampToValueAtTime(.0001,st+d);s.connect(f);f.connect(g);g.connect(a.destination);s.start(st);}
+var BUS=null;
+function bus(){var a=ctx();if(!a)return null;if(!BUS){var g=a.createGain(),w=a.createGain(),cv=a.createConvolver(),L=Math.floor(a.sampleRate*2.8),b=a.createBuffer(2,L,a.sampleRate);for(var c=0;c<2;c++){var x=b.getChannelData(c);for(var i=0;i<L;i++)x[i]=(Math.random()*2-1)*Math.pow(1-i/L,2.6);}cv.buffer=b;w.gain.value=.5;g.connect(a.destination);g.connect(cv);cv.connect(w);w.connect(a.destination);BUS=g;}return BUS;}
+function harp(f,t0,d,vol){var a=ctx(),b=bus();if(!a||muted||!b)return;var s=a.currentTime+t0,g=a.createGain(),lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(Math.min(f*7,9000),s);lp.frequency.exponentialRampToValueAtTime(f*1.6,s+d);g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(vol,s+.012);g.gain.exponentialRampToValueAtTime(.0001,s+d);lp.connect(g);g.connect(b);[['triangle',1,0,1],['sine',2,0,.35],['sine',1,6,.6],['sine',3,0,.12]].forEach(function(p){var o=a.createOscillator(),og=a.createGain();o.type=p[0];o.frequency.value=f*p[1];o.detune.value=p[2];og.gain.value=p[3];o.connect(og);og.connect(lp);o.start(s);o.stop(s+d+.05);});}
+function pad(fs,t0,d,vol){var a=ctx(),b=bus();if(!a||muted||!b)return;var s=a.currentTime+t0;fs.forEach(function(f){var o=a.createOscillator(),g=a.createGain();o.type='sine';o.frequency.value=f;g.gain.setValueAtTime(.0001,s);g.gain.exponentialRampToValueAtTime(vol,s+.5);g.gain.exponentialRampToValueAtTime(.0001,s+d);o.connect(g);g.connect(b);o.start(s);o.stop(s+d+.1);});}
+var VIC=null;
+try{VIC=new Audio('victoire.mp3');VIC.preload='auto';}catch(e){VIC=null;}
+function playVic(i){if(muted)return;if(!VIC){SFX.upSynth(i);return;}try{VIC.pause();VIC.currentTime=0;VIC.volume=.3;var pr=VIC.play();if(pr&&pr.catch)pr.catch(function(){SFX.upSynth(i);});}catch(e){SFX.upSynth(i);}}
+var SFX={
+ add:function(){harp(880,0,1.1,.12);harp(1319,.07,1.2,.09);harp(1760,.14,1.3,.06);},
+ rem:function(){tone(220,0,.45,'sine',.18,110);tone(165,.05,.5,'triangle',.1,80);},
+ up:function(i){playVic(i);},
+ upSynth:function(i){var m=[[440,0,1.6],[587,.2,1.6],[740,.4,1.6],[880,.6,2.4]];if(i>=2)m=m.concat([[784,1.4,1.6],[740,1.7,1.6],[659,2,1.6],[740,2.3,1.6],[880,2.7,1.6],[1175,3.1,3]]);m.forEach(function(x){harp(x[0],x[1],x[2],.15);});if(i>=3){[[147,0],[220,1.4],[196,2],[147,2.7]].forEach(function(x){harp(x[0],x[1],2.6,.16);});pad([294,370,440],.6,3.8,.05);}if(i>=4){[587,740,880,1175,1480,1760].forEach(function(f,k){harp(f,3.3+k*.08,2.6,.1);});pad([294,370,440,587],3.2,3.5,.06);}},
+ down:function(){[659,523,392,262].forEach(function(f,k){harp(f,k*.16,1.2,.12);});},
+ reg:function(){noise(0,.18,.25,3000);noise(.12,.14,.18,4500);tone(1175,.2,.5,'sine',.07);},
+ click:function(){tone(1400,0,.09,'sine',.05);}
+};
+function ambOn(){var a=ctx();if(!a||ambN)return;var m=a.createGain();m.gain.value=0;m.connect(a.destination);var f=a.createBiquadFilter();f.type='lowpass';f.frequency.value=700;f.connect(m);var os=[110,164.81,220.5,277.2].map(function(fr,i){var o=a.createOscillator();o.type=i%2?'triangle':'sine';o.frequency.value=fr;var g=a.createGain();g.gain.value=.25;o.connect(g);g.connect(f);o.start();return o;});var l=a.createOscillator(),lg=a.createGain();l.frequency.value=.12;lg.gain.value=300;l.connect(lg);lg.connect(f.frequency);l.start();m.gain.linearRampToValueAtTime(.05,a.currentTime+3);ambN={m:m,os:os.concat([l])};}
+function ambOff(){if(!ambN)return;var n=ambN;ambN=null;n.m.gain.linearRampToValueAtTime(0,AC.currentTime+1);setTimeout(function(){n.os.forEach(function(o){try{o.stop();}catch(e){}});},1200);}
+function syncSnd(){document.getElementById('sMute').textContent=muted?'🔇':'🔊';document.getElementById('sAmb').style.opacity=amb&&!muted?1:.45;}
+document.getElementById('sMute').onclick=function(){muted=!muted;sv('reg-mute',muted);if(muted){ambOff();if(VIC)VIC.pause();}else{if(amb)ambOn();SFX.click();}syncSnd();};
+document.getElementById('sAmb').onclick=function(){amb=!amb;sv('reg-amb',amb);if(amb&&!muted)ambOn();else ambOff();syncSnd();toast(amb?'Ambiance sonore activée.':'Ambiance sonore coupée.');};
+document.addEventListener('pointerdown',function(){if(amb&&!muted)ambOn();},{once:true});
+document.addEventListener('click',function(e){if(e.target.closest('button[data-a="m"],button[data-a="h"]'))SFX.click();});
+syncSnd();
+function renderCercle(){
+  var m=people.filter(function(p){return gi(p.points)>=3;}).sort(function(a,b){return b.points-a.points||a.name.localeCompare(b.name);});
+  var el=document.getElementById('cerList');
+  if(!m.length){el.innerHTML='<div class="empty">Aucun membre pour le moment. Le Cercle s’ouvre à partir du rang IV — Maître artiste ('+(3*STEP)+' points).</div>';return;}
+  el.innerHTML='<div class="next" style="margin-bottom:10px">'+m.length+' membre'+(m.length>1?'s':'')+' — artistes inscrits au registre à partir du rang Maître artiste.</div>'+m.map(function(p){var i=gi(p.points);
+    return '<div class="mem" style="--c:'+COL[i]+'"><div><div class="nm">'+esc(p.name)+'</div><div class="field">'+esc(p.field||'Discipline non précisée')+'</div></div><div class="rk">'+SIG[i]+' Rang '+GRADES[i].n+' — '+GRADES[i].t+'<div class="next">'+p.points+' points</div></div></div>';}).join('');}
+var PERKS=[
+['Inscription au registre.','Reconnaissance officielle.','Accès aux événements artistiques ouverts au public.'],
+['Bonus de points de mérite pour les œuvres validées.','Accès aux commandes artistiques mineures.','Possibilité d’exposer ses créations lors d’événements officiels.'],
+['Bonus de points de mérite supérieur.','Accès aux événements de cercle 3+.','Possibilité de recevoir des commandes institutionnelles.','Possibilité de participer à des expositions royales.'],
+['Bonus de points de mérite important.','Accès aux événements de cercle 4+.','Éligibilité aux commandes des souverains.','Possibilité de parrainer des apprentis artistes.','Apprentissage d’un sortilège accessible au cercle 4.','Accès au Cercle des Artistes.'],
+['Bonus de points de mérite maximal.','Accès aux événements de cercle 5.','Reconnaissance honorifique du Conseil.','Possibilité d’être sollicité comme jury lors de concours artistiques.','Possibilité de conseiller le ministère.','Accès au Cercle des Artistes.']];
+var GM=document.getElementById('gm'),gmCur=0,gmFrom=null;
+function gmDraw(i){gmCur=i;var g=GRADES[i],n=people.filter(function(p){return gi(p.points)===i;}).length;
+  GM.innerHTML='<div class="gm-box" style="--c:'+COL[i]+'"><button class="ghost gm-x" data-x="1" aria-label="Fermer">✕</button>'+
+  '<div class="gm-sg">'+SIG[i]+'</div><div class="gm-rn">RANG '+g.n+'</div><h2 id="gmT">'+g.t+'</h2>'+
+  '<div class="gm-pts">'+(i*STEP)+(i==4?' points et plus':' à '+((i+1)*STEP-1)+' points')+'</div>'+
+  '<div class="gm-n">'+n+' artiste'+(n>1?'s':'')+' à ce grade</div>'+
+  '<ul>'+PERKS[i].map(function(t){return '<li>'+esc(t)+'</li>';}).join('')+'</ul>'+
+  '<div class="gm-nav"><button class="ghost" data-nav="-1"'+(i==0?' disabled':'')+'>‹ Précédent</button><button class="ghost" data-nav="1"'+(i==4?' disabled':'')+'>Suivant ›</button></div></div>';}
+function gmOpen(i,from){gmFrom=from||null;gmDraw(i);GM.hidden=false;SFX.click();var x=GM.querySelector('.gm-x');if(x)x.focus();}
+function gmClose(){if(GM.hidden)return;GM.hidden=true;if(gmFrom&&gmFrom.focus)gmFrom.focus();}
+GM.onclick=function(e){if(e.target===GM||e.target.closest('[data-x]')){gmClose();return;}
+  var b=e.target.closest('[data-nav]');if(b){var n=gmCur+parseInt(b.dataset.nav,10);if(n>=0&&n<GRADES.length){gmDraw(n);SFX.click();var nb=GM.querySelector('[data-nav="'+b.dataset.nav+'"]');if(nb&&!nb.disabled)nb.focus();}}};
+document.getElementById('legend').onclick=function(e){var r=e.target.closest('.rank');if(r)gmOpen(parseInt(r.dataset.i,10),r);};
+document.getElementById('legend').onkeydown=function(e){if(e.key!=='Enter'&&e.key!==' ')return;var r=e.target.closest('.rank');if(r){e.preventDefault();gmOpen(parseInt(r.dataset.i,10),r);}};
+document.addEventListener('keydown',function(e){if(GM.hidden)return;if(e.key==='Escape')gmClose();else if(e.key==='ArrowRight'&&gmCur<4)gmDraw(gmCur+1);else if(e.key==='ArrowLeft'&&gmCur>0)gmDraw(gmCur-1);});
+load();render();
+var rev=0,adminKey='',pushT=null,pushing=false,again=false,loaded=false,persistent=true;
+try{adminKey=sessionStorage.getItem('reg-admin')||'';}catch(e){}
+function isAdmin(){return !!adminKey;}
+function setMode(){document.body.classList.toggle('ro',!isAdmin());var b=document.getElementById('sAdm');if(b){b.textContent=isAdmin()?'🔓':'🔑';b.title=isAdmin()?'Gardien connecté — cliquer pour se déconnecter':'Connexion gardien';}}
+function applyData(d){people=Array.isArray(d.artistes)?d.artistes:[];arts=Array.isArray(d.oeuvres)?d.oeuvres:[];rev=d.rev||0;persistent=d.persistent!==false;render();renderArts();if(!document.getElementById('tab-cer').hidden)renderCercle();}
+function fetchData(quiet){return fetch('/api/data',{cache:'no-store'}).then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(d){if(quiet&&loaded&&d.rev===rev)return;loaded=true;applyData(d);}).catch(function(){if(!quiet)toast('Registre injoignable pour le moment.');});}
+function pushData(){if(!isAdmin())return;clearTimeout(pushT);pushT=setTimeout(doPush,40);}
+function doPush(){if(pushing){again=true;return;}pushing=true;
+  fetch('/api/data',{method:'PUT',headers:{'Content-Type':'application/json','X-Admin-Key':adminKey},body:JSON.stringify({artistes:people,oeuvres:arts,rev:rev})})
+  .then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {s:r.status,j:j};});})
+  .then(function(x){pushing=false;
+    if(x.s===200){rev=x.j.rev;if(again){again=false;doPush();}}
+    else if(x.s===409){again=false;toast('Le registre a été modifié ailleurs : données rechargées, refaites votre action.');fetchData();}
+    else if(x.s===401){again=false;logout(true);toast('Session gardien expirée : reconnectez-vous.');}
+    else{again=false;toast('Enregistrement impossible ('+x.s+').');}})
+  .catch(function(){pushing=false;again=false;toast('Enregistrement impossible : serveur injoignable.');});}
+function logout(silent){adminKey='';try{sessionStorage.removeItem('reg-admin');}catch(e){}setMode();if(!silent)toast('Mode gardien désactivé.');}
+function loginReq(pw){return fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})}).then(function(r){return r.json().catch(function(){return {};}).then(function(j){return {s:r.status,j:j};});});}
+function migrate(){var lp=[],la=[];try{lp=JSON.parse(localStorage.getItem(KEY))||[];la=JSON.parse(localStorage.getItem(AKEY))||[];}catch(e){}
+  if(!Array.isArray(lp))lp=[];if(!Array.isArray(la))la=[];
+  if(!people.length&&!arts.length&&(lp.length||la.length)&&confirm('Le registre partagé est vide. Importer les '+lp.length+' artiste(s) et '+la.length+' œuvre(s) enregistrés dans ce navigateur ?')){people=lp;arts=la;pushData();render();renderArts();toast('Données importées dans le registre partagé.');}}
+var LG=document.createElement('div');LG.id='lg';LG.hidden=true;LG.setAttribute('role','dialog');LG.setAttribute('aria-modal','true');document.body.appendChild(LG);
+function lgClose(){LG.hidden=true;}
+function lgOpen(){LG.innerHTML='<div class="gm-box" style="--c:#f5d78a"><button class="ghost gm-x" data-x="1" aria-label="Fermer">✕</button><div class="gm-sg">⚜</div><h2>Accès gardien</h2><div class="gm-pts">Réservé à la tenue du registre. Les visiteurs le consultent en lecture seule.</div><input type="password" id="lgPw" placeholder="Mot de passe" autocomplete="current-password"><div class="msg" id="lgMsg"></div><button id="lgGo">Se connecter</button></div>';LG.hidden=false;document.getElementById('lgPw').focus();}
+function lgSubmit(){var pw=document.getElementById('lgPw').value,m=document.getElementById('lgMsg');if(!pw){m.textContent='Saisissez le mot de passe.';return;}
+  loginReq(pw).then(function(x){
+    if(x.s===200){adminKey=pw;try{sessionStorage.setItem('reg-admin',pw);}catch(e){}setMode();lgClose();SFX.reg();toast('Mode gardien activé.');
+      if(!persistent)setTimeout(function(){toast('Attention : aucun volume Railway, les données seront perdues au prochain déploiement.');},3600);migrate();}
+    else if(x.s===401)m.textContent='Mot de passe incorrect.';
+    else if(x.s===429)m.textContent='Trop de tentatives, réessayez dans quelques minutes.';
+    else if(x.s===503)m.textContent='Aucun mot de passe défini sur le serveur (variable ADMIN_PASSWORD).';
+    else m.textContent='Connexion impossible.';
+  }).catch(function(){m.textContent='Serveur injoignable.';});}
+LG.onclick=function(e){if(e.target===LG||e.target.closest('[data-x]'))lgClose();else if(e.target.id==='lgGo')lgSubmit();};
+LG.onkeydown=function(e){if(e.key==='Enter'&&e.target.id==='lgPw')lgSubmit();};
+document.addEventListener('keydown',function(e){if(e.key==='Escape')lgClose();});
+(function(){var b=document.createElement('button');b.id='sAdm';b.className='ghost';b.setAttribute('aria-label','Connexion gardien');document.querySelector('.snd').appendChild(b);b.onclick=function(){if(isAdmin())logout();else lgOpen();};
+  ['newName','aAdd','imp'].forEach(function(id){var el=document.getElementById(id),t=id==='imp'?el:el.closest('.panel');if(t)t.classList.add('adm');});
+  var n=document.createElement('div');n.className='hint ronote';n.textContent='Mode consultation — le registre est tenu à jour par les gardiens.';var tabs=document.querySelector('.tabs');tabs.parentNode.insertBefore(n,tabs);})();
+setMode();
+fetchData().then(function(){if(isAdmin())loginReq(adminKey).then(function(x){if(x.s!==200)logout(true);});});
+function poll(){if(document.hidden||pushing)return;if(isAdmin()&&Object.keys(openM).some(function(k){return openM[k];}))return;fetchData(true);}
+setInterval(poll,20000);document.addEventListener('visibilitychange',poll);
+
+</script>
+</body>
+</html>
